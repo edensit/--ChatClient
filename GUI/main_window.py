@@ -94,7 +94,7 @@ class MainWindow:
         self.chat_textbox.clipboard_append(text)
         # https://mail.python.org/pipermail/tutor/2004-July/030398.html
 
-    def on_double_click(self, event): # need rewrite
+    def on_double_click(self, event):  # need rewrite
         def tag():
             self.msg_box_entry.insert(END, "@%s " % name)
             self.msg_box_entry.focus_set()

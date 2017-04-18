@@ -10,21 +10,19 @@ class SendPokeWindow:
 
         self.master.title("Poke")
 
-        width = 190
-        height = 90
+        self.width = 190
+        self.height = 90
 
         # get screen width and height
-        screen_width = self.master.winfo_screenwidth()  # width of the screen
-        screen_height = self.master.winfo_screenheight()  # height of the screen
+        self.screen_width = self.master.winfo_screenwidth()  # width of the screen
+        self.screen_height = self.master.winfo_screenheight()  # height of the screen
 
         # calculate win_x_coordinates and win_y_coordinates coordinates for the Tk root window
-        win_x_coordinates = (screen_width / 2) - (width / 2)
-        win_y_coordinates = (screen_height / 2) - (height / 2)
-
-
+        self.win_x_coordinates = (self.screen_width / 2) - (self.width / 2)
+        self.win_y_coordinates = (self.screen_height / 2) - (self.height / 2)
 
         # set the dimensions of the screen and where it is placed
-        self.master.geometry('%dx%d+%d+%d' % (190, 90, win_x_coordinates, win_y_coordinates))
+        self.master.geometry('%dx%d+%d+%d' % (190, 90, self.win_x_coordinates, self.win_y_coordinates))
 
         self.style = ttk.Style()
         self.style.configure("BW.TLabel", foreground="black", background="white")
