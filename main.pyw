@@ -14,3 +14,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# CR extract magic numbers to constants and enums Make the code more modular - divide into files, classes, functions.
+# http://www.makinggoodsoftware.com/2009/06/04/10-commandments-for-creating-good-code/

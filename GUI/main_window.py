@@ -1,12 +1,6 @@
 from Tkinter import *
 import ttk
 import tkMessageBox
-try:
-    from PIL import ImageTk, Image
-except ImportError:
-    import pip
-    pip.main(['install', "pillow"])
-    from PIL import ImageTk, Image
 from datetime import datetime
 import cPickle
 import Queue
@@ -100,56 +94,7 @@ class MainWindow:
         self.chat_textbox.clipboard_append(text)
         # https://mail.python.org/pipermail/tutor/2004-July/030398.html
 
-    ##############################################################
-    def got_poked(self, data):
-        username = data[:data.index(":::")]
-        msg = data[data.index(":::") + 3:]
-
-        self.chat_textbox.insert(END, "\n%s - %s pokes you: %s" % (datetime.now().strftime('%H:%M:%S'), username, msg))
-        tkMessageBox.showinfo("You Have Been Poked", "\n%s - %s pokes you: %s" % (datetime.now().strftime('%H:%M:%S'), username, msg))
-
-    def insert_msg(self, data):  # d_type 1 - msg
-        self.chat_textbox.insert(END, "\n%s %s" % (datetime.now().strftime('%H:%M:%S'), data))
-        self.chat_textbox.see(END)
-
-    def update_users_list(self, data):  # d_type 2 - users list
-        self.user_list.delete(0, END)
-        users_list = cPickle.loads(data)
-        for user in users_list:
-            self.user_list.insert(END, user)
-
-    def perform_poke(self, data):  # d_type 3 - poke
-        self.q.put(lambda: self.got_poked(data))
-
-    def connection_error(self):
-        self.chat_textbox.insert(END, "\nConnection to server lost!\n", "RED")
-        self.chat_textbox.see(END)
-
-    ##############################################################
-
-    def send_msg(self, data, d_type=SEND_ENUM.TYPE_MSG, arg=0):
-        data = str(data)
-        if len(data) >= 1 and d_type == SEND_ENUM.TYPE_MSG:
-            try:
-                self.chat_textbox.insert(END, "\n%s [Me] %s" % (datetime.now().strftime('%H:%M:%S'), data))
-                self.sock_handler.send_msg(data)
-            except sock_handling.ConnectionError as error:
-                self.chat_textbox.insert(END, "\nError: The message was not delivered", "RED")
-            else:
-                pass
-            finally:
-                self.msg_box_entry.delete(0, 'end')
-                self.chat_textbox.see(END)
-        elif d_type != SEND_ENUM.TYPE_MSG:
-            try:
-                self.sock_handler.send_msg(data, d_type)
-            except sock_handling.ConnectionError as error:
-                pass
-        else:
-            pass
-
-
-    def on_double_click(self, event):
+    def on_double_click(self, event): # need rewrite
         def tag():
             self.msg_box_entry.insert(END, "@%s " % name)
             self.msg_box_entry.focus_set()
@@ -175,4 +120,51 @@ class MainWindow:
             menu.add_command(label='Coming Soon')
 
         menu.post(event.x_root, event.y_root)
+
+    ##############################################################
+    def got_poked(self, data):
+        username = data[:data.index(":::")]
+        msg = data[data.index(":::") + 3:]
+
+        self.chat_textbox.insert(END, "\n%s - %s pokes you: %s" % (datetime.now().strftime('%H:%M:%S'), username, msg))
+        tkMessageBox.showinfo("You Have Been Poked", "\n%s - %s pokes you: %s" % (datetime.now().strftime('%H:%M:%S'), username, msg))
+
+    def insert_msg(self, data):  # d_type 1 - msg
+        self.chat_textbox.insert(END, "\n%s %s" % (datetime.now().strftime('%H:%M:%S'), data))
+        self.chat_textbox.see(END)
+
+    def update_users_list(self, data):  # d_type 2 - users list
+        self.user_list.delete(0, END)
+        users_list = cPickle.loads(data)
+        for user in users_list:
+            self.user_list.insert(END, user)
+
+    def perform_poke(self, data):  # d_type 3 - poke
+        self.q.put(lambda: self.got_poked(data))
+
+    def connection_error(self):
+        self.chat_textbox.insert(END, "\nConnection to server lost!\n", "RED")
+        self.chat_textbox.see(END)
+
+    def send_msg(self, data, d_type=SEND_ENUM.TYPE_MSG, arg=0):
+        data = str(data)
+        if len(data) >= 1 and d_type == SEND_ENUM.TYPE_MSG:
+            try:
+                self.chat_textbox.insert(END, "\n%s [Me] %s" % (datetime.now().strftime('%H:%M:%S'), data))
+                self.sock_handler.send_msg(data)
+            except sock_handling.ConnectionError as error:
+                self.chat_textbox.insert(END, "\nError: The message was not delivered", "RED")
+            else:
+                pass
+            finally:
+                self.msg_box_entry.delete(0, 'end')
+                self.chat_textbox.see(END)
+        elif d_type != SEND_ENUM.TYPE_MSG:
+            try:
+                self.sock_handler.send_msg(data, d_type)
+            except sock_handling.ConnectionError as error:
+                pass
+        else:
+            pass
+    ##############################################################
 
