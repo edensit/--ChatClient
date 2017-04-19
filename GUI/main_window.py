@@ -154,7 +154,7 @@ class MainWindow:
                 self.chat_textbox.insert(END, "%s [Me] %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
                 self.sock_handler.send_msg(data)
             except sock_handling.ConnectionError:
-                self.chat_textbox.insert(END, "Error: The message was not delivered\n", "RED")
+                self.chat_textbox.insert(END, "Error: Connection to server lost! The message was not delivered\n", "RED")
             else:
                 pass
             finally:
