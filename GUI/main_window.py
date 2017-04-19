@@ -16,11 +16,11 @@ class SEND_ENUM:
 
 
 class MainWindow:
-    def __init__(self, master, username):
+    def __init__(self, master, username, sock):
         self.master = master
         self.username = username
 
-        self.sock_handler = sock_handling.SockHandler()
+        self.sock_handler = sock_handling.SockHandler(sock)
 
         self.master.title("eVoice Chat Client v0.1")
         self.master.geometry("775x380")  # window size

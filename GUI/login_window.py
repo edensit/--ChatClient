@@ -60,8 +60,9 @@ class LoginWindow:
         self.connect_button.pack(expand=False, padx=15, pady=10)
 
     def handle_correct_auth(self):
+        sock = self.login_handler.get_sock()
         new_window = Toplevel(self.master)
-        main_window.MainWindow(new_window, self.username_input.get())
+        main_window.MainWindow(new_window, self.username_input.get(), sock)
         self.master.withdraw()
 
     def handle_incorrect_auth(self):
@@ -81,7 +82,7 @@ class LoginWindow:
         else:
             if d_type == LOGIN_ENUM.CORRECT_AUTH:
                 self.handle_correct_auth()
-                self.login_handler.handle_correct_auth()
+                # self.login_handler.handle_correct_auth()
 
             elif d_type == LOGIN_ENUM.INCORRECT_AUTH:
                 self.handle_incorrect_auth()

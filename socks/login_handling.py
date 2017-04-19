@@ -35,8 +35,11 @@ class LoginHandler:
         except socket.error:
             self.re_establish_socket()
 
+    def get_sock(self):
+        return self.client_socket
+
     def handle_correct_auth(self):
-        sock_handling.SockHandler(self.client_socket)
+        pass
 
     def handle_incorrect_auth(self):
         self.re_establish_socket()
