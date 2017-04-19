@@ -83,11 +83,9 @@ class LoginWindow:
             if d_type == LOGIN_ENUM.CORRECT_AUTH:
                 self.handle_correct_auth()
                 # self.login_handler.handle_correct_auth()
-
             elif d_type == LOGIN_ENUM.INCORRECT_AUTH:
                 self.handle_incorrect_auth()
                 self.login_handler.handle_incorrect_auth()
-
             elif d_type == LOGIN_ENUM.ALREADY_CONNECTED:
                 self.handle_already_connected()
                 self.login_handler.handle_already_connected()
