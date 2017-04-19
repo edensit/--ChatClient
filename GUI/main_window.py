@@ -4,8 +4,9 @@ import tkMessageBox
 from datetime import datetime
 import cPickle
 import Queue
-from socks import sock_handling
 import thread
+from socks import sock_handling
+from GUI import send_poke_window
 
 
 class SEND_ENUM:
@@ -96,7 +97,7 @@ class MainWindow:
         elif d_type == RECV_ENUM.TYPE_USER_LIST:
             self.update_users_list(data)
         elif d_type == RECV_ENUM.TYPE_POKE:
-            pass
+            self.handle_incoming_poke(data)
 
     def received_messages(self):
         while True:
@@ -122,13 +123,14 @@ class MainWindow:
         self.chat_textbox.clipboard_append(text)
         # https://mail.python.org/pipermail/tutor/2004-July/030398.html
 
-    def got_poked(self, data):
+    def show_poke(self, data):
         username = data[:data.index(":::")]
         msg = data[data.index(":::") + 3:]
-
         self.chat_textbox.insert(END, "\n%s - %s pokes you: %s" % (datetime.now().strftime('%H:%M:%S'), username, msg))
-        tkMessageBox.showinfo("You Have Been Poked", "\n%s - %s pokes you: %s"
-                              % (datetime.now().strftime('%H:%M:%S'), username, msg))
+        tkMessageBox.showinfo("You Have Been Poked", "\n%s - %s pokes you: %s" % (datetime.now().strftime('%H:%M:%S'), username, msg))
+
+    def handle_incoming_poke(self, data):  # d_type 3 - poke
+        self.q.put(lambda: self.show_poke(data))
 
     def insert_msg(self, data):  # d_type 1 - msg
         self.chat_textbox.insert(END, "\n%s %s" % (datetime.now().strftime('%H:%M:%S'), data))
@@ -139,9 +141,6 @@ class MainWindow:
         users_list = cPickle.loads(data)
         for user in users_list:
             self.user_list.insert(END, user)
-
-    def perform_poke(self, data):  # d_type 3 - poke
-        self.q.put(lambda: self.got_poked(data))
 
     def connection_error(self):
         self.chat_textbox.insert(END, "\nConnection to server lost!\n", "RED")
@@ -160,6 +159,7 @@ class MainWindow:
             finally:
                 self.msg_box_entry.delete(0, 'end')
                 self.chat_textbox.see(END)
+                self.msg_box_entry.focus_set()
         elif d_type != SEND_ENUM.TYPE_MSG:
             try:
                 self.sock_handler.send_msg(data, d_type)
@@ -176,7 +176,7 @@ class MainWindow:
 
         def poke():
             self.new_window = Toplevel(self.master)
-            SendPokeWindow(self.new_window, self, name)
+            send_poke_window.SendPokeWindow(self.new_window, self, name)
 
         def p_chat():
             pass

@@ -47,5 +47,5 @@ class SendPokeWindow:
 
     def send_poke(self):
         data = self.name + ":::" + self.poke_input.get()
-        #self.main_window.send_msg(data, 5)
+        self.main_window.send_msg(data, 5)
         self.master.destroy()
