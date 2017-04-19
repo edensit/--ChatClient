@@ -126,15 +126,15 @@ class MainWindow:
     def show_poke(self, data):
         username = data[:data.index(":::")]
         msg = data[data.index(":::") + 3:]
-        self.chat_textbox.insert(END, "\n%s - %s pokes you: %s" % (datetime.now().strftime('%H:%M:%S'), username, msg))
-        tkMessageBox.showinfo("You Have Been Poked", "\n%s - %s pokes you: %s"
+        self.chat_textbox.insert(END, "%s - %s pokes you: %s\n" % (datetime.now().strftime('%H:%M:%S'), username, msg))
+        tkMessageBox.showinfo("You Have Been Poked", "%s - %s pokes you: %s"
                               % (datetime.now().strftime('%H:%M:%S'), username, msg))
 
     def handle_incoming_poke(self, data):  # d_type 3 - poke
         self.q.put(lambda: self.show_poke(data))
 
     def insert_msg(self, data):  # d_type 1 - msg
-        self.chat_textbox.insert(END, "\n%s %s" % (datetime.now().strftime('%H:%M:%S'), data))
+        self.chat_textbox.insert(END, "%s %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
         self.chat_textbox.see(END)
 
     def update_users_list(self, data):  # d_type 2 - users list
@@ -151,10 +151,10 @@ class MainWindow:
         data = str(data)
         if len(data) >= 1 and d_type == SEND_ENUM.TYPE_MSG:
             try:
-                self.chat_textbox.insert(END, "\n%s [Me] %s" % (datetime.now().strftime('%H:%M:%S'), data))
+                self.chat_textbox.insert(END, "%s [Me] %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
                 self.sock_handler.send_msg(data)
             except sock_handling.ConnectionError:
-                self.chat_textbox.insert(END, "\nError: The message was not delivered", "RED")
+                self.chat_textbox.insert(END, "Error: The message was not delivered\n", "RED")
             else:
                 pass
             finally:

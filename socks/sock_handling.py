@@ -55,7 +55,6 @@ class SockHandler:
                 self.client_socket.send(packed_data)
             except socket.error:
                 raise ConnectionError("Connection Error")
-
             finally:
                 pass
 
