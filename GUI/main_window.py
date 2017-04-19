@@ -127,7 +127,8 @@ class MainWindow:
         username = data[:data.index(":::")]
         msg = data[data.index(":::") + 3:]
         self.chat_textbox.insert(END, "\n%s - %s pokes you: %s" % (datetime.now().strftime('%H:%M:%S'), username, msg))
-        tkMessageBox.showinfo("You Have Been Poked", "\n%s - %s pokes you: %s" % (datetime.now().strftime('%H:%M:%S'), username, msg))
+        tkMessageBox.showinfo("You Have Been Poked", "\n%s - %s pokes you: %s"
+                              % (datetime.now().strftime('%H:%M:%S'), username, msg))
 
     def handle_incoming_poke(self, data):  # d_type 3 - poke
         self.q.put(lambda: self.show_poke(data))
@@ -152,7 +153,7 @@ class MainWindow:
             try:
                 self.chat_textbox.insert(END, "\n%s [Me] %s" % (datetime.now().strftime('%H:%M:%S'), data))
                 self.sock_handler.send_msg(data)
-            except sock_handling.ConnectionError as error:
+            except sock_handling.ConnectionError:
                 self.chat_textbox.insert(END, "\nError: The message was not delivered", "RED")
             else:
                 pass
@@ -163,7 +164,7 @@ class MainWindow:
         elif d_type != SEND_ENUM.TYPE_MSG:
             try:
                 self.sock_handler.send_msg(data, d_type)
-            except sock_handling.ConnectionError as error:
+            except sock_handling.ConnectionError:
                 pass
         else:
             pass
