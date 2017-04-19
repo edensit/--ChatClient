@@ -16,13 +16,18 @@ class SEND_ENUM:
     TYPE_POKE = 5
 
 
+class RECV_ENUM:
+    TYPE_MSG = 1
+    TYPE_USER_LIST = 2
+    TYPE_POKE = 3
+
+
 class MainWindow:
     def __init__(self, master, username, sock):
         self.master = master
         self.username = username
 
         self.sock_handler = sock_handling.SockHandler(sock)
-        thread.start_new_thread(self.received_messages, ())
 
         self.master.title("eVoice Chat Client v0.1")
         self.master.geometry("775x380")  # window size
@@ -74,18 +79,33 @@ class MainWindow:
 
         self.q = Queue.Queue()
         self.master.after(100, self.check_queue)
-
-    def received_messages(self):
-        while True:
-            data = self.sock_handler.get_next_message()
-            if data is not None:
-                self.insert_msg(data)
+        thread.start_new_thread(self.received_messages, ())
 
     def handle_closing(self):
         if tkMessageBox.askokcancel("Quit", "Do you want to quit?"):
             self.sock_handler.close_socket()
             self.master.destroy()
             raise SystemExit
+
+    def handle_data(self, data):
+        d_type = data[0]
+        data = data[1]
+
+        if d_type == RECV_ENUM.TYPE_MSG:
+            self.insert_msg(data)
+        elif d_type == RECV_ENUM.TYPE_USER_LIST:
+            self.update_users_list(data)
+        elif d_type == RECV_ENUM.TYPE_POKE:
+            pass
+
+    def received_messages(self):
+        while True:
+            try:
+                data = self.sock_handler.get_next_message()
+            except sock_handling.EmptyMessagesQError:
+                pass
+            else:
+                self.handle_data(data)
 
     def check_queue(self):
         while True:
@@ -102,34 +122,6 @@ class MainWindow:
         self.chat_textbox.clipboard_append(text)
         # https://mail.python.org/pipermail/tutor/2004-July/030398.html
 
-    def on_double_click(self, event):  # need rewrite
-        def tag():
-            self.msg_box_entry.insert(END, "@%s " % name)
-            self.msg_box_entry.focus_set()
-
-        def poke():
-            self.new_window = Toplevel(self.master)
-            SendPokeWindow(self.new_window, self, name)
-
-        def p_chat():
-            pass
-
-        widget = event.widget
-        selection = widget.curselection()
-        name = widget.get(selection[0])
-        print "selection:", selection, ": '%s'" % name
-
-        menu = Menu(self.master, tearoff=0)
-        if name != self.username:
-            menu.add_command(label='Tag', command=tag)
-            menu.add_command(label='Poke', command=poke)
-            menu.add_command(label='Start private chat (&Voice)', command=p_chat)
-        else:
-            menu.add_command(label='Coming Soon')
-
-        menu.post(event.x_root, event.y_root)
-
-    ##############################################################
     def got_poked(self, data):
         username = data[:data.index(":::")]
         msg = data[data.index(":::") + 3:]
@@ -175,5 +167,32 @@ class MainWindow:
                 pass
         else:
             pass
-    ##############################################################
 
+    #################################################################
+    def on_double_click(self, event):  # need rewrite
+        def tag():
+            self.msg_box_entry.insert(END, "@%s " % name)
+            self.msg_box_entry.focus_set()
+
+        def poke():
+            self.new_window = Toplevel(self.master)
+            SendPokeWindow(self.new_window, self, name)
+
+        def p_chat():
+            pass
+
+        widget = event.widget
+        selection = widget.curselection()
+        name = widget.get(selection[0])
+        print "selection:", selection, ": '%s'" % name
+
+        menu = Menu(self.master, tearoff=0)
+        if name != self.username:
+            menu.add_command(label='Tag', command=tag)
+            menu.add_command(label='Poke', command=poke)
+            menu.add_command(label='Start private chat (&Voice)', command=p_chat)
+        else:
+            menu.add_command(label='Coming Soon')
+
+        menu.post(event.x_root, event.y_root)
+    #################################################################

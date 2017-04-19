@@ -3,6 +3,7 @@ import thread
 import struct
 import Queue
 
+
 class SEND_ENUM:
     TYPE_LOGIN = 1
     TYPE_REGISTER = 2
@@ -25,6 +26,10 @@ class ConnectionError(BaseError):
     pass
 
 
+class EmptyMessagesQError(BaseError):
+    pass
+
+
 class SockHandler:
     def __init__(self, client_socket):
         self.client_socket = client_socket
@@ -36,7 +41,7 @@ class SockHandler:
         try:
             return self.received_messages.get(True, 5)
         except Queue.Empty:
-            return None
+            raise EmptyMessagesQError()
 
     @staticmethod
     def pack_data(d_type, arg, data):
@@ -61,19 +66,15 @@ class SockHandler:
                 raise ConnectionError("Connection Error")
 
     def receive_data(self):
-        try:
-            while True:
+        while True:
+            try:
                 recv_data = self.client_socket.recv(self.BUFFER)
+            except socket.error:
+                self.client_socket.close()
+                raise ConnectionError("Connection Error")
+            else:
                 (d_type,), data = struct.unpack("!I", recv_data[:4]), recv_data[4:]
-                if d_type == RECV_ENUM.TYPE_MSG:
-                    self.received_messages.put((d_type, data))
-                elif d_type == RECV_ENUM.TYPE_USER_LIST:
-                    self.received_messages.put((d_type, data))
-                elif d_type == RECV_ENUM.TYPE_POKE:
-                    self.received_messages.put((d_type, data))
-        except socket.error:
-            self.client_socket.close()
-            raise ConnectionError("Connection Error")
+                self.received_messages.put((d_type, data))
 
     def close_socket(self):
         self.client_socket.close()
