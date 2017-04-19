@@ -5,6 +5,7 @@ from datetime import datetime
 import cPickle
 import Queue
 from socks import sock_handling
+import thread
 
 
 class SEND_ENUM:
@@ -21,6 +22,7 @@ class MainWindow:
         self.username = username
 
         self.sock_handler = sock_handling.SockHandler(sock)
+        thread.start_new_thread(self.received_messages, ())
 
         self.master.title("eVoice Chat Client v0.1")
         self.master.geometry("775x380")  # window size
@@ -72,6 +74,12 @@ class MainWindow:
 
         self.q = Queue.Queue()
         self.master.after(100, self.check_queue)
+
+    def received_messages(self):
+        while True:
+            data = self.sock_handler.get_next_message()
+            if data is not None:
+                self.insert_msg(data)
 
     def handle_closing(self):
         if tkMessageBox.askokcancel("Quit", "Do you want to quit?"):
@@ -127,7 +135,8 @@ class MainWindow:
         msg = data[data.index(":::") + 3:]
 
         self.chat_textbox.insert(END, "\n%s - %s pokes you: %s" % (datetime.now().strftime('%H:%M:%S'), username, msg))
-        tkMessageBox.showinfo("You Have Been Poked", "\n%s - %s pokes you: %s" % (datetime.now().strftime('%H:%M:%S'), username, msg))
+        tkMessageBox.showinfo("You Have Been Poked", "\n%s - %s pokes you: %s"
+                              % (datetime.now().strftime('%H:%M:%S'), username, msg))
 
     def insert_msg(self, data):  # d_type 1 - msg
         self.chat_textbox.insert(END, "\n%s %s" % (datetime.now().strftime('%H:%M:%S'), data))
