@@ -1,6 +1,5 @@
 import socket
 import struct
-from socks import sock_handling
 
 
 class LOGIN_ENUM:
