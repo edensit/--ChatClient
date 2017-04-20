@@ -28,7 +28,7 @@ class MainWindow:
         self.master = master
         self.username = username
 
-        self.sock_handler = sock_handling.SockHandler(sock)
+        self.sock_handler = sock_handling.SocketHandler(sock)
 
         self.master.title("eVoice Chat Client v0.1")
         self.master.geometry("775x380")  # window size
@@ -80,7 +80,7 @@ class MainWindow:
 
         self.q = Queue.Queue()
         self.master.after(100, self.check_queue)
-        thread.start_new_thread(self.received_messages, ())
+        #thread.start_new_thread(self.received_messages, ())
 
     def handle_closing(self):
         if tkMessageBox.askokcancel("Quit", "Do you want to quit?"):

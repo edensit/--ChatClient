@@ -12,7 +12,7 @@ class SEND_ENUM:
     TYPE_POKE = 5
 
 
-class RECV_ENUM:
+class RECEIVE_ENUM:
     TYPE_MSG = 1
     TYPE_USER_LIST = 2
     TYPE_POKE = 3
@@ -30,7 +30,7 @@ class EmptyMessagesQError(BaseError):
     pass
 
 
-class SockHandler:
+class SocketHandler:
     def __init__(self, client_socket):
         self.client_socket = client_socket
         self.BUFFER = 1024
