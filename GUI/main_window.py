@@ -80,7 +80,7 @@ class MainWindow:
 
         self.q = Queue.Queue()
         self.master.after(100, self.check_queue)
-        #thread.start_new_thread(self.received_messages, ())
+        thread.start_new_thread(self.received_messages, ())
 
     def handle_closing(self):
         if tkMessageBox.askokcancel("Quit", "Do you want to quit?"):
