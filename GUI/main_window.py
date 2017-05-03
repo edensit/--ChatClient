@@ -138,19 +138,19 @@ class MainWindow:
         tkMessageBox.showinfo("You Have Been Poked", "%s - %s pokes you: %s"
                               % (datetime.now().strftime('%H:%M:%S'), username, msg))
 
-    def incoming_poke_handler(self, data):  # d_type 3 - poke
-        self.q.put(lambda: self.show_poke(data))
-
     def insert_msg(self, data):  # d_type 1 - msg
         self.chat_textbox.insert(END, "%s %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
         self.chat_textbox.see(END)
-        alert_audio_handling.play_sound()
+        alert_audio_handling.play_sound(SoundPathEnum.MESSAGE)
 
     def update_users_list(self, data):  # d_type 2 - users list
         self.user_list.delete(0, END)
         users_list = cPickle.loads(data)
         for user in users_list:
             self.user_list.insert(END, user)
+
+    def incoming_poke_handler(self, data):  # d_type 3 - poke
+        self.q.put(lambda: self.show_poke(data))
 
     def connection_error(self):
         self.chat_textbox.insert(END, "\nConnection to server lost!\n", "RED")
