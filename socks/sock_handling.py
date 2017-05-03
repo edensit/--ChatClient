@@ -4,7 +4,7 @@ import struct
 import Queue
 
 
-class SEND_ENUM:
+class SendEnum:
     TYPE_LOGIN = 1
     TYPE_REGISTER = 2
     TYPE_MSG = 3
@@ -12,7 +12,7 @@ class SEND_ENUM:
     TYPE_POKE = 5
 
 
-class RECEIVE_ENUM:
+class ReceiveEnum:
     TYPE_MSG = 1
     TYPE_USER_LIST = 2
     TYPE_POKE = 3
@@ -47,10 +47,10 @@ class SocketHandler:
     def pack_data(d_type, arg, data):
         return struct.pack('!II', d_type, arg) + data
 
-    def send_msg(self, data, d_type=SEND_ENUM.TYPE_MSG, arg=0):
+    def send_msg(self, data, d_type=SendEnum.TYPE_MSG, arg=0):
         packed_data = self.pack_data(d_type, arg, data)
 
-        if len(data) >= 1 and d_type == SEND_ENUM.TYPE_MSG:
+        if len(data) >= 1 and d_type == SendEnum.TYPE_MSG:
             try:
                 self.client_socket.send(packed_data)
             except socket.error:
@@ -58,7 +58,7 @@ class SocketHandler:
             finally:
                 pass
 
-        elif d_type != SEND_ENUM.TYPE_MSG:
+        elif d_type != SendEnum.TYPE_MSG:
             try:
                 self.client_socket.send(packed_data)
             except socket.error:

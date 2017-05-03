@@ -10,7 +10,7 @@ from socks import login_handling
 import main_window
 
 
-class LOGIN_ENUM:
+class LoginAuthStateEnum:
     CORRECT_AUTH = 1
     INCORRECT_AUTH = 2
     ALREADY_CONNECTED = 3
@@ -80,13 +80,13 @@ class LoginWindow:
         except login_handling.LoginError as error:
             self.incorrect_l.config(text=error)
         else:
-            if d_type == LOGIN_ENUM.CORRECT_AUTH:
+            if d_type == LoginAuthStateEnum.CORRECT_AUTH:
                 self.handle_correct_auth()
                 # self.login_handler.handle_correct_auth()
-            elif d_type == LOGIN_ENUM.INCORRECT_AUTH:
+            elif d_type == LoginAuthStateEnum.INCORRECT_AUTH:
                 self.handle_incorrect_auth()
                 self.login_handler.handle_incorrect_auth()
-            elif d_type == LOGIN_ENUM.ALREADY_CONNECTED:
+            elif d_type == LoginAuthStateEnum.ALREADY_CONNECTED:
                 self.handle_already_connected()
                 self.login_handler.handle_already_connected()
 
