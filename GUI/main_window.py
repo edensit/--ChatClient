@@ -1,15 +1,23 @@
-from Tkinter import *
-import ttk
-import tkMessageBox
-from datetime import datetime
-import cPickle
 import Queue
+import cPickle
 import thread
-from socks import sock_handling
+import tkMessageBox
+import ttk
+from Tkinter import *
+from datetime import datetime
+
 from GUI import send_poke_window
+from socks import sock_handling, alert_audio_handling
 
 
-class SEND_ENUM:
+class SoundPathEnum:
+    MESSAGE = "sound/incoming_message.wav"
+    BANNED = "sound/user_banned.wav"
+    KICKED = "sound/user_kicked.wav"
+    POKED = "sound/you_were_poked.wav"
+
+
+class SendEnum:
     TYPE_LOGIN = 1
     TYPE_REGISTER = 2
     TYPE_MSG = 3
@@ -17,7 +25,7 @@ class SEND_ENUM:
     TYPE_POKE = 5
 
 
-class RECV_ENUM:
+class ReceiveEnum:
     TYPE_MSG = 1
     TYPE_USER_LIST = 2
     TYPE_POKE = 3
@@ -92,11 +100,11 @@ class MainWindow:
         d_type = data[0]
         data = data[1]
 
-        if d_type == RECV_ENUM.TYPE_MSG:
+        if d_type == ReceiveEnum.TYPE_MSG:
             self.insert_msg(data)
-        elif d_type == RECV_ENUM.TYPE_USER_LIST:
+        elif d_type == ReceiveEnum.TYPE_USER_LIST:
             self.update_users_list(data)
-        elif d_type == RECV_ENUM.TYPE_POKE:
+        elif d_type == ReceiveEnum.TYPE_POKE:
             self.handle_incoming_poke(data)
 
     def received_messages(self):
@@ -136,6 +144,7 @@ class MainWindow:
     def insert_msg(self, data):  # d_type 1 - msg
         self.chat_textbox.insert(END, "%s %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
         self.chat_textbox.see(END)
+        alert_audio_handling.play_sound()
 
     def update_users_list(self, data):  # d_type 2 - users list
         self.user_list.delete(0, END)
@@ -147,9 +156,9 @@ class MainWindow:
         self.chat_textbox.insert(END, "\nConnection to server lost!\n", "RED")
         self.chat_textbox.see(END)
 
-    def send_msg(self, data, d_type=SEND_ENUM.TYPE_MSG, arg=0):
+    def send_msg(self, data, d_type=SendEnum.TYPE_MSG, arg=0):
         data = str(data)
-        if len(data) >= 1 and d_type == SEND_ENUM.TYPE_MSG:
+        if len(data) >= 1 and d_type == SendEnum.TYPE_MSG:
             try:
                 self.chat_textbox.insert(END, "%s [Me] %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
                 self.sock_handler.send_msg(data)
@@ -161,7 +170,7 @@ class MainWindow:
                 self.msg_box_entry.delete(0, 'end')
                 self.chat_textbox.see(END)
                 self.msg_box_entry.focus_set()
-        elif d_type != SEND_ENUM.TYPE_MSG:
+        elif d_type != SendEnum.TYPE_MSG:
             try:
                 self.sock_handler.send_msg(data, d_type)
             except sock_handling.ConnectionError:
