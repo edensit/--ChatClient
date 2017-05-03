@@ -28,7 +28,7 @@ class LoginWindow:
         self.style = ttk.Style()
         self.style.configure("BW.TLabel", foreground="black", background="white")
 
-        self.img = ImageTk.PhotoImage(Image.open("GUI\main_logo.png"))
+        self.img = ImageTk.PhotoImage(Image.open("GFX\main_logo.png"))
         self.logo = ttk.Label(self.master, image=self.img)
         self.logo.pack(side="top", fill="both", expand="yes", padx=22)
 
