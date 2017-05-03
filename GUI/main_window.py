@@ -42,7 +42,7 @@ class MainWindow:
         self.master.geometry("775x380")  # window size
         self.master.resizable(width=False, height=False)
 
-        self.master.protocol("WM_DELETE_WINDOW", self.handle_closing)
+        self.master.protocol("WM_DELETE_WINDOW", self.window_close_handler)
 
         self.style = ttk.Style()
         self.style.configure("BW.TLabel", foreground="black", background="white")
@@ -90,13 +90,13 @@ class MainWindow:
         self.master.after(100, self.check_queue)
         thread.start_new_thread(self.received_messages, ())
 
-    def handle_closing(self):
+    def window_close_handler(self):
         if tkMessageBox.askokcancel("Quit", "Do you want to quit?"):
             self.sock_handler.close_socket()
             self.master.destroy()
             raise SystemExit
 
-    def handle_data(self, data):
+    def raw_data_handler(self, data):
         d_type = data[0]
         data = data[1]
 
@@ -105,7 +105,7 @@ class MainWindow:
         elif d_type == ReceiveTypeEnum.TYPE_USER_LIST:
             self.update_users_list(data)
         elif d_type == ReceiveTypeEnum.TYPE_POKE:
-            self.handle_incoming_poke(data)
+            self.incoming_poke_handler(data)
 
     def received_messages(self):
         while True:
@@ -114,7 +114,7 @@ class MainWindow:
             except sock_handling.EmptyMessagesQError:
                 pass
             else:
-                self.handle_data(data)
+                self.raw_data_handler(data)
 
     def check_queue(self):
         while True:
@@ -138,7 +138,7 @@ class MainWindow:
         tkMessageBox.showinfo("You Have Been Poked", "%s - %s pokes you: %s"
                               % (datetime.now().strftime('%H:%M:%S'), username, msg))
 
-    def handle_incoming_poke(self, data):  # d_type 3 - poke
+    def incoming_poke_handler(self, data):  # d_type 3 - poke
         self.q.put(lambda: self.show_poke(data))
 
     def insert_msg(self, data):  # d_type 1 - msg

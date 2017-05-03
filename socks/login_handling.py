@@ -37,13 +37,13 @@ class LoginHandler:
     def get_sock(self):
         return self.client_socket
 
-    def handle_correct_auth(self):
+    def correct_auth_handler(self):
         pass
 
-    def handle_incorrect_auth(self):
+    def incorrect_auth_handler(self):
         self.re_establish_socket()
 
-    def handle_already_connected(self):
+    def already_connected_handler(self):
         self.re_establish_socket()
 
     def send_login_auth(self, username, password):
@@ -54,7 +54,7 @@ class LoginHandler:
         except socket.error:
             self.re_establish_socket()
 
-    def handle_login(self, username, password):
+    def login_handler(self, username, password):
         self.establish_socket()
         self.send_login_auth(username, password)
 

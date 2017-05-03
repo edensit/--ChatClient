@@ -59,36 +59,36 @@ class LoginWindow:
         self.connect_button = ttk.Button(self.master, text='Register', command=self.register)
         self.connect_button.pack(expand=False, padx=15, pady=10)
 
-    def handle_correct_auth(self):
+    def correct_auth_handler(self):
         sock = self.login_handler.get_sock()
         new_window = Toplevel(self.master)
         main_window.MainWindow(new_window, self.username_input.get(), sock)
         self.master.withdraw()
 
-    def handle_incorrect_auth(self):
+    def incorrect_auth_handler(self):
         self.incorrect_l.config(text="Incorrect username or password!")
 
-    def handle_already_connected(self):
+    def already_connected_handler(self):
         self.incorrect_l.config(text="Client already connected from another PC")
 
-    def handle_socket_error(self):
+    def socket_error_handler(self):
         self.incorrect_l.config(text="Connection Error")
 
     def login(self):
         try:
-            d_type = self.login_handler.handle_login(self.username_input.get(), self.password_input.get())
+            d_type = self.login_handler.login_handler(self.username_input.get(), self.password_input.get())
         except login_handling.LoginError as error:
             self.incorrect_l.config(text=error)
         else:
             if d_type == LoginAuthStateEnum.CORRECT_AUTH:
-                self.handle_correct_auth()
+                self.correct_auth_handler()
                 # self.login_handler.handle_correct_auth()
             elif d_type == LoginAuthStateEnum.INCORRECT_AUTH:
-                self.handle_incorrect_auth()
-                self.login_handler.handle_incorrect_auth()
+                self.incorrect_auth_handler()
+                self.login_handler.incorrect_auth_handler()
             elif d_type == LoginAuthStateEnum.ALREADY_CONNECTED:
-                self.handle_already_connected()
-                self.login_handler.handle_already_connected()
+                self.already_connected_handler()
+                self.login_handler.already_connected_handler()
 
     def register(self):
         pass
