@@ -17,7 +17,7 @@ class SoundPathEnum:
     POKED = "sound/you_were_poked.wav"
 
 
-class SendEnum:
+class SendTypeEnum:
     TYPE_LOGIN = 1
     TYPE_REGISTER = 2
     TYPE_MSG = 3
@@ -25,7 +25,7 @@ class SendEnum:
     TYPE_POKE = 5
 
 
-class ReceiveEnum:
+class ReceiveTypeEnum:
     TYPE_MSG = 1
     TYPE_USER_LIST = 2
     TYPE_POKE = 3
@@ -100,11 +100,11 @@ class MainWindow:
         d_type = data[0]
         data = data[1]
 
-        if d_type == ReceiveEnum.TYPE_MSG:
+        if d_type == ReceiveTypeEnum.TYPE_MSG:
             self.insert_msg(data)
-        elif d_type == ReceiveEnum.TYPE_USER_LIST:
+        elif d_type == ReceiveTypeEnum.TYPE_USER_LIST:
             self.update_users_list(data)
-        elif d_type == ReceiveEnum.TYPE_POKE:
+        elif d_type == ReceiveTypeEnum.TYPE_POKE:
             self.handle_incoming_poke(data)
 
     def received_messages(self):
@@ -156,9 +156,9 @@ class MainWindow:
         self.chat_textbox.insert(END, "\nConnection to server lost!\n", "RED")
         self.chat_textbox.see(END)
 
-    def send_msg(self, data, d_type=SendEnum.TYPE_MSG, arg=0):
+    def send_msg(self, data, d_type=SendTypeEnum.TYPE_MSG, arg=0):
         data = str(data)
-        if len(data) >= 1 and d_type == SendEnum.TYPE_MSG:
+        if len(data) >= 1 and d_type == SendTypeEnum.TYPE_MSG:
             try:
                 self.chat_textbox.insert(END, "%s [Me] %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
                 self.sock_handler.send_msg(data)
@@ -170,7 +170,7 @@ class MainWindow:
                 self.msg_box_entry.delete(0, 'end')
                 self.chat_textbox.see(END)
                 self.msg_box_entry.focus_set()
-        elif d_type != SendEnum.TYPE_MSG:
+        elif d_type != SendTypeEnum.TYPE_MSG:
             try:
                 self.sock_handler.send_msg(data, d_type)
             except sock_handling.ConnectionError:

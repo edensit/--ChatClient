@@ -2,7 +2,7 @@ import socket
 import struct
 
 
-class LoginEnum:
+class LoginAuthStateEnum:
     CORRECT_AUTH = 1
     INCORRECT_AUTH = 2
     ALREADY_CONNECTED = 3
@@ -65,9 +65,9 @@ class LoginHandler:
             self.re_establish_socket()
             raise LoginError("Connection Error")
         else:
-            if d_type == LoginEnum.CORRECT_AUTH:
-                return LoginEnum.CORRECT_AUTH
-            elif d_type == LoginEnum.INCORRECT_AUTH:
-                return LoginEnum.INCORRECT_AUTH
-            elif d_type == LoginEnum.ALREADY_CONNECTED:
-                return LoginEnum.ALREADY_CONNECTED
+            if d_type == LoginAuthStateEnum.CORRECT_AUTH:
+                return LoginAuthStateEnum.CORRECT_AUTH
+            elif d_type == LoginAuthStateEnum.INCORRECT_AUTH:
+                return LoginAuthStateEnum.INCORRECT_AUTH
+            elif d_type == LoginAuthStateEnum.ALREADY_CONNECTED:
+                return LoginAuthStateEnum.ALREADY_CONNECTED
