@@ -45,7 +45,7 @@ class MainWindow:
         self.master.protocol("WM_DELETE_WINDOW", self.window_close_handler)
 
         self.style = ttk.Style()
-        self.style.configure("BW.TLabel", foreground="black", background="white")
+        #self.style.theme_use('clam')
 
         ttk.Label(self.master, text="Logged in as " + str(self.username)).grid(row=0, column=0, sticky=W)
 
@@ -139,7 +139,7 @@ class MainWindow:
                               % (datetime.now().strftime('%H:%M:%S'), username, msg))
 
     def insert_msg(self, data):  # d_type 1 - msg
-        self.chat_textbox.insert(END, "%s %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
+        self.chat_textbox.insert(END, "<%s> %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
         self.chat_textbox.see(END)
         alert_audio_handling.play_sound(SoundPathEnum.MESSAGE)
 
@@ -160,7 +160,7 @@ class MainWindow:
         data = str(data)
         if len(data) >= 1 and d_type == SendTypeEnum.TYPE_MSG:
             try:
-                self.chat_textbox.insert(END, "%s [Me] %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
+                self.chat_textbox.insert(END, '<%s> [Me] %s\n' % (datetime.now().strftime('%H:%M:%S'), data))
                 self.sock_handler.send_msg(data)
             except sock_handling.ConnectionError:
                 self.chat_textbox.insert(END, "Error: Connection to server lost! The message was not delivered\n", "RED")

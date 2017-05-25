@@ -24,9 +24,6 @@ class SendPokeWindow:
         # set the dimensions of the screen and where it is placed
         self.master.geometry('%dx%d+%d+%d' % (190, 90, self.win_x_coordinates, self.win_y_coordinates))
 
-        self.style = ttk.Style()
-        self.style.configure("BW.TLabel", foreground="black", background="white")
-
         self.poke_input = StringVar()
         self.poke_frame = ttk.LabelFrame(self.master, text="Poke Reason", padding="2")
         self.poke_frame.grid(row=1, column=1, columnspan=2, padx=10, pady=5)

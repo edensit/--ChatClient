@@ -6,28 +6,25 @@ except ImportError:
     import pip
     pip.main(['install', "pillow"])
     from PIL import ImageTk, Image
-from socks import login_handling
+from socks import register_handling
 import main_window
-import register_window
-
-class LoginAuthStateEnum:
-    CORRECT_AUTH = 1
-    INCORRECT_AUTH = 2
-    ALREADY_CONNECTED = 3
 
 
-class LoginWindow:
+class RegisterStateEnum:
+    CORRECT_REGISTER = 1
+    INCORRECT_REGISTER = 2
+
+
+class RegisterWindow:
     def __init__(self, master):
         self.master = master
-        self.login_handler = login_handling.LoginHandler()
+        self.register_handler = register_handling.RegisterHandler()
 
         self.master.title("eVoice Chat Client v0.1")
         self.master.geometry("300x400")  # window size
         self.master.resizable(width=False, height=False)
 
         self.style = ttk.Style()
-        #self.style.theme_use('clam')
-        #self.style.configure('TMenubutton', background=self.master.cget("bg")) # style="TMenubutton"
 
         self.img = ImageTk.PhotoImage(Image.open("GFX\main_logo.png"))
         self.logo = ttk.Label(self.master, image=self.img)
@@ -51,47 +48,29 @@ class LoginWindow:
         self.incorrect_l = Label(self.master, text="", fg="red")
         self.incorrect_l.pack()
 
-        self.connect_button = ttk.Button(self.master, text='Connect', command=self.login)
+        self.connect_button = ttk.Button(self.master, text='Register', command=self.login)
         self.connect_button.pack(expand=False, padx=15, pady=10)
 
         self.username_entry.bind("<KeyRelease-Return>", lambda e: self.login())
         self.password_entry.bind("<KeyRelease-Return>", lambda e: self.login())
 
-        self.connect_button = ttk.Button(self.master, text='Register', command=self.register)
-        self.connect_button.pack(expand=False, padx=15, pady=10)
+    def correct_register_handler(self):
+        self.incorrect_l.config(text="You have successfully registered. Please log in.")
 
-    def correct_auth_handler(self):
-        sock = self.login_handler.get_sock()
-        new_window = Toplevel(self.master)
-        main_window.MainWindow(new_window, self.username_input.get(), sock)
-        self.master.withdraw()
-
-    def incorrect_auth_handler(self):
-        self.incorrect_l.config(text="Incorrect username or password!")
-
-    def already_connected_handler(self):
-        self.incorrect_l.config(text="Client already connected from another PC")
+    def incorrect_register_handler(self):
+        self.incorrect_l.config(text="Username already exists!")
 
     def socket_error_handler(self):
         self.incorrect_l.config(text="Connection Error")
 
     def login(self):
         try:
-            d_type = self.login_handler.login_handler(self.username_input.get(), self.password_input.get())
-        except login_handling.LoginError as error:
+            d_type = self.register_handler.register_handler(self.username_input.get(), self.password_input.get())
+        except register_handling.RegisterError as error:
             self.incorrect_l.config(text=error)
         else:
-            if d_type == LoginAuthStateEnum.CORRECT_AUTH:
-                self.correct_auth_handler()
-                # self.register_handler.handle_correct_auth()
-            elif d_type == LoginAuthStateEnum.INCORRECT_AUTH:
-                self.incorrect_auth_handler()
-                self.login_handler.incorrect_auth_handler()
-            elif d_type == LoginAuthStateEnum.ALREADY_CONNECTED:
-                self.already_connected_handler()
-                self.login_handler.already_connected_handler()
-
-    def register(self):
-        new_window = Toplevel(self.master)
-        register_window.RegisterWindow(new_window)
-        self.master.withdraw()
+            if d_type == RegisterStateEnum.CORRECT_REGISTER:
+                self.correct_register_handler()
+            elif d_type == RegisterStateEnum.INCORRECT_REGISTER:
+                self.incorrect_register_handler()
+                self.register_handler.incorrect_register_handler()
