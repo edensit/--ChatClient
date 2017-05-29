@@ -14,13 +14,11 @@ class SendPokeWindow:
         self.height = 90
 
         # get screen width and height
-        self.screen_width = self.master.winfo_screenwidth()  # width of the screen
-        self.screen_height = self.master.winfo_screenheight()  # height of the screen
-
+        self.screen_width = self.master.winfo_screenwidth()
+        self.screen_height = self.master.winfo_screenheight()
         # calculate win_x_coordinates and win_y_coordinates coordinates for the Tk root window
         self.win_x_coordinates = (self.screen_width / 2) - (self.width / 2)
         self.win_y_coordinates = (self.screen_height / 2) - (self.height / 2)
-
         # set the dimensions of the screen and where it is placed
         self.master.geometry('%dx%d+%d+%d' % (190, 90, self.win_x_coordinates, self.win_y_coordinates))
 

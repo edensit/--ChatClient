@@ -10,6 +10,7 @@ from socks import login_handling
 import main_window
 import register_window
 
+
 class LoginAuthStateEnum:
     CORRECT_AUTH = 1
     INCORRECT_AUTH = 2
@@ -22,12 +23,8 @@ class LoginWindow:
         self.login_handler = login_handling.LoginHandler()
 
         self.master.title("eVoice Chat Client v0.1")
-        self.master.geometry("300x400")  # window size
+        self.master.geometry("300x400")
         self.master.resizable(width=False, height=False)
-
-        self.style = ttk.Style()
-        #self.style.theme_use('clam')
-        #self.style.configure('TMenubutton', background=self.master.cget("bg")) # style="TMenubutton"
 
         self.img = ImageTk.PhotoImage(Image.open("GFX\main_logo.png"))
         self.logo = ttk.Label(self.master, image=self.img)
@@ -41,7 +38,7 @@ class LoginWindow:
         self.username_entry.pack()
         self.username_entry.focus_set()
 
-        self.password_input = StringVar()  # Password variable
+        self.password_input = StringVar()
         self.password_frame = ttk.LabelFrame(self.master, text="Password", relief="ridge", borderwidth=2, padding="2")
         self.password_frame.pack(padx=10, pady=10)
 
@@ -75,8 +72,16 @@ class LoginWindow:
     def socket_error_handler(self):
         self.incorrect_l.config(text="Connection Error")
 
+    def toggle_busy_cursor(self):
+        if self.master.cget("cursor") == "":
+            self.master.config(cursor="wait")
+        else:
+            self.master.config(cursor="")
+        self.master.update()
+
     def login(self):
         try:
+            self.toggle_busy_cursor()
             d_type = self.login_handler.login_handler(self.username_input.get(), self.password_input.get())
         except login_handling.LoginError as error:
             self.incorrect_l.config(text=error)
@@ -90,8 +95,17 @@ class LoginWindow:
             elif d_type == LoginAuthStateEnum.ALREADY_CONNECTED:
                 self.already_connected_handler()
                 self.login_handler.already_connected_handler()
+        finally:
+            self.toggle_busy_cursor()
 
     def register(self):
         new_window = Toplevel(self.master)
         register_window.RegisterWindow(new_window)
         self.master.withdraw()
+
+"""
+        self.style = ttk.Style()
+        #self.style.theme_use('clam')
+        #self.style.configure('TMenubutton', background=self.master.cget("bg")) # style="TMenubutton"
+        print self.style.theme_use()
+"""

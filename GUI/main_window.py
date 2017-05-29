@@ -5,7 +5,6 @@ import tkMessageBox
 import ttk
 from Tkinter import *
 from datetime import datetime
-
 from GUI import send_poke_window
 from socks import sock_handling, alert_audio_handling
 
@@ -39,13 +38,10 @@ class MainWindow:
         self.sock_handler = sock_handling.SocketHandler(sock)
 
         self.master.title("eVoice Chat Client v0.1")
-        self.master.geometry("775x380")  # window size
+        self.master.geometry("775x380")
         self.master.resizable(width=False, height=False)
 
         self.master.protocol("WM_DELETE_WINDOW", self.window_close_handler)
-
-        self.style = ttk.Style()
-        #self.style.theme_use('clam')
 
         ttk.Label(self.master, text="Logged in as " + str(self.username)).grid(row=0, column=0, sticky=W)
 
@@ -89,6 +85,25 @@ class MainWindow:
         self.q = Queue.Queue()
         self.master.after(100, self.check_queue)
         thread.start_new_thread(self.received_messages, ())
+
+        self.menu_bar = Menu(self.master)
+
+        self.filemenu = Menu(self.menu_bar, tearoff=0)
+        self.filemenu.add_command(label="Options", command=self.donothing)
+        self.filemenu.add_command(label="None", command=self.donothing)
+        self.filemenu.add_separator()
+        self.filemenu.add_command(label="Exit", command=self.window_close_handler)
+        self.menu_bar.add_cascade(label="eVoice", menu=self.filemenu)
+
+        self.helpmenu = Menu(self.menu_bar, tearoff=0)
+        self.helpmenu.add_command(label="Help", command=self.donothing)
+        self.helpmenu.add_command(label="About...", command=self.donothing)
+        self.menu_bar.add_cascade(label="Help", menu=self.helpmenu)
+
+        self.master.config(menu=self.menu_bar)
+
+    def donothing(self):
+        pass
 
     def window_close_handler(self):
         if tkMessageBox.askokcancel("Quit", "Do you want to quit?"):

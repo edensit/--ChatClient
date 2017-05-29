@@ -38,7 +38,7 @@ class RegisterWindow:
         self.username_entry.pack()
         self.username_entry.focus_set()
 
-        self.password_input = StringVar()  # Password variable
+        self.password_input = StringVar()
         self.password_frame = ttk.LabelFrame(self.master, text="Password", relief="ridge", borderwidth=2, padding="2")
         self.password_frame.pack(padx=10, pady=10)
 
@@ -54,6 +54,13 @@ class RegisterWindow:
         self.username_entry.bind("<KeyRelease-Return>", lambda e: self.login())
         self.password_entry.bind("<KeyRelease-Return>", lambda e: self.login())
 
+    def toggle_busy_cursor(self):
+        if self.master.cget("cursor") == "":
+            self.master.config(cursor="wait")
+        else:
+            self.master.config(cursor="")
+        self.master.update()
+
     def correct_register_handler(self):
         self.incorrect_l.config(text="You have successfully registered. Please log in.")
 
@@ -65,6 +72,7 @@ class RegisterWindow:
 
     def login(self):
         try:
+            self.toggle_busy_cursor()
             d_type = self.register_handler.register_handler(self.username_input.get(), self.password_input.get())
         except register_handling.RegisterError as error:
             self.incorrect_l.config(text=error)
@@ -74,3 +82,5 @@ class RegisterWindow:
             elif d_type == RegisterStateEnum.INCORRECT_REGISTER:
                 self.incorrect_register_handler()
                 self.register_handler.incorrect_register_handler()
+        finally:
+            self.toggle_busy_cursor()
