@@ -1,0 +1,18 @@
+//TO DO
+
+1. change any "eVoice" string to "eChat" [DONE]
+2. add export message log option [DONE]
+3. add ban system (https://www.quora.com/What-is-the-best-database-design-for-adding-a-table-for-banned-users)
+4. warp any socket connection with SSL
+*5. add tabs (chat, options, admin options etc..)
+6. set red color for warning message
+
+// TO DO - BUG FIXES
+
+1. fix auto scroll down when warning message is sent [FIXED]
+2. online user list does not update when user got kicked [FIXED]
+3. server crash when sending POKE to admin (once)
+4. unable to send private message to admin [FIXED]
+5. admin can poke himself [FIXED]
+6. admin can send himself private msg
+
