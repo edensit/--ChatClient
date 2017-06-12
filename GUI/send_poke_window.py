@@ -3,8 +3,8 @@ import ttk
 
 
 class SendPokeWindow:
-    def __init__(self, master, main_window, name):
-        self.master = master
+    def __init__(self, main_window, name):
+        self.master = Toplevel()
         self.name = name
         self.main_window = main_window
 

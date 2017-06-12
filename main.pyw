@@ -10,6 +10,7 @@ def main():
 
     master = Tk()
     login_window.LoginWindow(master)
+    master.iconbitmap('GFX\icon.ico')
     master.mainloop()
 
 if __name__ == '__main__':

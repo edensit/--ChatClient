@@ -5,6 +5,8 @@ import struct
 class RegisterStateEnum:
     CORRECT_REGISTER = 1
     INCORRECT_REGISTER = 2
+    ILLEGAL_USERNAME = 3
+    ILLEGAL_PASSWORD = 4
 
 
 class BaseError(Exception):
@@ -59,3 +61,7 @@ class RegisterHandler:
                 return RegisterStateEnum.CORRECT_REGISTER
             elif d_type == RegisterStateEnum.INCORRECT_REGISTER:
                 return RegisterStateEnum.INCORRECT_REGISTER
+            elif d_type == RegisterStateEnum.ILLEGAL_USERNAME:
+                return RegisterStateEnum.ILLEGAL_USERNAME
+            elif d_type == RegisterStateEnum.ILLEGAL_PASSWORD:
+                return RegisterStateEnum.ILLEGAL_PASSWORD

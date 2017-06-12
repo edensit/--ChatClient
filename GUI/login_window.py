@@ -22,7 +22,7 @@ class LoginWindow:
         self.master = master
         self.login_handler = login_handling.LoginHandler()
 
-        self.master.title("eVoice Chat Client v0.1")
+        self.master.title("eChat Chat Client v1.0")
         self.master.geometry("300x400")
         self.master.resizable(width=False, height=False)
 
@@ -51,11 +51,10 @@ class LoginWindow:
         self.connect_button = ttk.Button(self.master, text='Connect', command=self.login)
         self.connect_button.pack(expand=False, padx=15, pady=10)
 
-        self.username_entry.bind("<KeyRelease-Return>", lambda e: self.login())
-        self.password_entry.bind("<KeyRelease-Return>", lambda e: self.login())
-
         self.connect_button = ttk.Button(self.master, text='Register', command=self.register)
         self.connect_button.pack(expand=False, padx=15, pady=10)
+
+        self.master.bind("<KeyRelease-Return>", lambda e: self.login())
 
     def correct_auth_handler(self):
         sock = self.login_handler.get_sock()
@@ -102,10 +101,3 @@ class LoginWindow:
         new_window = Toplevel(self.master)
         register_window.RegisterWindow(new_window)
         self.master.withdraw()
-
-"""
-        self.style = ttk.Style()
-        #self.style.theme_use('clam')
-        #self.style.configure('TMenubutton', background=self.master.cget("bg")) # style="TMenubutton"
-        print self.style.theme_use()
-"""

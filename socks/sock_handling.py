@@ -16,6 +16,7 @@ class ReceiveTypeEnum:
     TYPE_MSG = 1
     TYPE_USER_LIST = 2
     TYPE_POKE = 3
+    TYPE_CONNECTION_ERROR = 4
 
 
 class BaseError(Exception):
@@ -37,6 +38,11 @@ class SocketHandler:
         thread.start_new_thread(self.receive_data, ())
         self.received_messages = Queue.Queue()
 
+    def connection_error(self):
+        self.client_socket.close()
+        self.received_messages.put((ReceiveTypeEnum.TYPE_CONNECTION_ERROR, None))
+        raise ConnectionError("Connection Error")
+
     def get_next_message(self):
         try:
             return self.received_messages.get(True, 5)
@@ -54,7 +60,7 @@ class SocketHandler:
             try:
                 self.client_socket.send(packed_data)
             except socket.error:
-                raise ConnectionError("Connection Error")
+                self.connection_error()
             finally:
                 pass
 
@@ -62,15 +68,14 @@ class SocketHandler:
             try:
                 self.client_socket.send(packed_data)
             except socket.error:
-                raise ConnectionError("Connection Error")
+                self.connection_error()
 
     def receive_data(self):
         while True:
             try:
                 recv_data = self.client_socket.recv(self.BUFFER)
             except socket.error:
-                self.client_socket.close()
-                raise ConnectionError("Connection Error")
+                self.connection_error()
             else:
                 (d_type,), data = struct.unpack("!I", recv_data[:4]), recv_data[4:]
                 self.received_messages.put((d_type, data))

@@ -13,6 +13,8 @@ import main_window
 class RegisterStateEnum:
     CORRECT_REGISTER = 1
     INCORRECT_REGISTER = 2
+    ILLEGAL_USERNAME = 3
+    ILLEGAL_PASSWORD = 4
 
 
 class RegisterWindow:
@@ -20,7 +22,7 @@ class RegisterWindow:
         self.master = master
         self.register_handler = register_handling.RegisterHandler()
 
-        self.master.title("eVoice Chat Client v0.1")
+        self.master.title("eChat Chat Client v1.0")
         self.master.geometry("300x400")  # window size
         self.master.resizable(width=False, height=False)
 
@@ -51,8 +53,7 @@ class RegisterWindow:
         self.connect_button = ttk.Button(self.master, text='Register', command=self.login)
         self.connect_button.pack(expand=False, padx=15, pady=10)
 
-        self.username_entry.bind("<KeyRelease-Return>", lambda e: self.login())
-        self.password_entry.bind("<KeyRelease-Return>", lambda e: self.login())
+        self.master.bind("<KeyRelease-Return>", lambda e: self.login())
 
     def toggle_busy_cursor(self):
         if self.master.cget("cursor") == "":
@@ -66,6 +67,12 @@ class RegisterWindow:
 
     def incorrect_register_handler(self):
         self.incorrect_l.config(text="Username already exists!")
+
+    def illegal_username(self):
+        self.incorrect_l.config(text='Username can only contain letters, numbers,\n "-", and "_" and most more then 4 chars')
+
+    def illegal_password(self):
+        self.incorrect_l.config(text='Password can only contain letters, numbers,\n "-", and "_" and most more then 8 chars')
 
     def socket_error_handler(self):
         self.incorrect_l.config(text="Connection Error")
@@ -81,6 +88,12 @@ class RegisterWindow:
                 self.correct_register_handler()
             elif d_type == RegisterStateEnum.INCORRECT_REGISTER:
                 self.incorrect_register_handler()
+                self.register_handler.incorrect_register_handler()
+            elif d_type == RegisterStateEnum.ILLEGAL_USERNAME:
+                self.illegal_username()
+                self.register_handler.incorrect_register_handler()
+            elif d_type == RegisterStateEnum.ILLEGAL_PASSWORD:
+                self.illegal_password()
                 self.register_handler.incorrect_register_handler()
         finally:
             self.toggle_busy_cursor()

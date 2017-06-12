@@ -37,9 +37,6 @@ class LoginHandler:
     def get_sock(self):
         return self.client_socket
 
-    def correct_auth_handler(self):
-        pass
-
     def incorrect_auth_handler(self):
         self.re_establish_socket()
 

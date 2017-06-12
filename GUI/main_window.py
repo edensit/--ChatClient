@@ -2,10 +2,12 @@ import Queue
 import cPickle
 import thread
 import tkMessageBox
-import ttk
 from Tkinter import *
+from tkFileDialog import askdirectory
+import ttk
 from datetime import datetime
 from GUI import send_poke_window
+from GUI import admin_ban_window
 from socks import sock_handling, alert_audio_handling
 
 
@@ -28,6 +30,7 @@ class ReceiveTypeEnum:
     TYPE_MSG = 1
     TYPE_USER_LIST = 2
     TYPE_POKE = 3
+    TYPE_CONNECTION_ERROR = 4
 
 
 class MainWindow:
@@ -36,9 +39,9 @@ class MainWindow:
         self.username = username
 
         self.sock_handler = sock_handling.SocketHandler(sock)
-
-        self.master.title("eVoice Chat Client v0.1")
-        self.master.geometry("775x380")
+        self.master.iconbitmap('GFX\icon.ico')
+        self.master.title("eChat Chat Client v1.0")
+        self.master.geometry("775x395")
         self.master.resizable(width=False, height=False)
 
         self.master.protocol("WM_DELETE_WINDOW", self.window_close_handler)
@@ -58,7 +61,7 @@ class MainWindow:
 
         self.chat_frame = LabelFrame(self.master, text="Chat Box", padx=5, pady=5)
         self.chat_frame.grid(row=1, column=12, sticky=N, columnspan=10, rowspan=20)
-        self.chat_textbox = Text(self.chat_frame, width=60, height=15)
+        self.chat_textbox = Text(self.chat_frame, width=53, height=15, font=("Helvetica", 12))
         self.chat_textbox.grid()
         self.chat_textbox.tag_config('RED', foreground='red')
         self.chat_textbox.bind("<Key>", lambda e: "break")  # makes the text box readonly
@@ -74,7 +77,8 @@ class MainWindow:
         self.msg_box_frame.grid(row=20, column=12, sticky=W + S)
         self.msg_box_entry = ttk.Entry(self.msg_box_frame, textvariable=self.msg_input, width=70)
         self.msg_box_entry.grid()
-        self.msg_box_entry.bind("<KeyRelease-Return>", lambda e: self.send_msg(self.msg_input.get()))
+
+        self.master.bind("<KeyRelease-Return>", lambda e: self.send_msg(self.msg_input.get()))
 
         self.send_button_frame = LabelFrame(self.master, text="", padx=6, pady=6.4)
         self.send_button_frame.grid(row=20, column=18, sticky=W + S)
@@ -89,11 +93,13 @@ class MainWindow:
         self.menu_bar = Menu(self.master)
 
         self.filemenu = Menu(self.menu_bar, tearoff=0)
-        self.filemenu.add_command(label="Options", command=self.donothing)
-        self.filemenu.add_command(label="None", command=self.donothing)
+        self.filemenu.add_command(label="Toggle Sound", command=self.toggle_sound)
+        self.filemenu.add_command(label="Toggle Poke popup", command=self.toggle_poke_popup)
+        self.filemenu.add_command(label="Save chat to txt file", command=self.save_chat_log)
+        self.filemenu.add_command(label="ban list", command=self.admin_ban_window_handler)
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Exit", command=self.window_close_handler)
-        self.menu_bar.add_cascade(label="eVoice", menu=self.filemenu)
+        self.menu_bar.add_cascade(label="eChat", menu=self.filemenu)
 
         self.helpmenu = Menu(self.menu_bar, tearoff=0)
         self.helpmenu.add_command(label="Help", command=self.donothing)
@@ -101,6 +107,38 @@ class MainWindow:
         self.menu_bar.add_cascade(label="Help", menu=self.helpmenu)
 
         self.master.config(menu=self.menu_bar)
+
+        self.sound_activate = True
+        self.poke_popup_activate = True
+
+        self.insert_local_msg("Connected to server! :)")
+
+    def toggle_sound(self):
+        if self.sound_activate:
+            self.sound_activate = False
+            self.insert_local_msg("Sound is now disabled", "RED")
+        else:
+            self.sound_activate = True
+            self.insert_local_msg("Sound is now enabled", "RED")
+
+    def toggle_poke_popup(self):
+        if self.poke_popup_activate:
+            self.poke_popup_activate = False
+            self.insert_local_msg("Poke popup is now disabled", "RED")
+        else:
+            self.poke_popup_activate = True
+            self.insert_local_msg("Poke popup is now enabled", "RED")
+
+    def save_chat_log(self):
+        directory_path = askdirectory()
+        text = self.chat_textbox.get("1.0", 'end-1c')
+        try:
+            with open(directory_path + "/ChatLog.txt", "a") as outf:
+                outf.write(text)
+        except (IOError, OSError):
+            self.insert_local_msg("Error: Save Failed", "RED")
+        else:
+            self.insert_local_msg("Log file successfully saved!", "RED")
 
     def donothing(self):
         pass
@@ -121,6 +159,8 @@ class MainWindow:
             self.update_users_list(data)
         elif d_type == ReceiveTypeEnum.TYPE_POKE:
             self.incoming_poke_handler(data)
+        elif d_type == ReceiveTypeEnum.TYPE_CONNECTION_ERROR:
+            self.connection_error()
 
     def received_messages(self):
         while True:
@@ -131,7 +171,7 @@ class MainWindow:
             else:
                 self.raw_data_handler(data)
 
-    def check_queue(self):
+    def check_queue(self): # Poke Queue
         while True:
             try:
                 task = self.q.get(block=False)
@@ -149,14 +189,21 @@ class MainWindow:
     def show_poke(self, data):
         username = data[:data.index(":::")]
         msg = data[data.index(":::") + 3:]
-        self.chat_textbox.insert(END, "%s - %s pokes you: %s\n" % (datetime.now().strftime('%H:%M:%S'), username, msg))
-        tkMessageBox.showinfo("You Have Been Poked", "%s - %s pokes you: %s"
-                              % (datetime.now().strftime('%H:%M:%S'), username, msg))
+        self.insert_local_msg("%s - %s pokes you: %s\n" % (datetime.now().strftime('%H:%M:%S'), username, msg))
+
+        if self.poke_popup_activate:
+            tkMessageBox.showinfo("You Have Been Poked", "%s - %s pokes you: %s"
+                                  % (datetime.now().strftime('%H:%M:%S'), username, msg))
 
     def insert_msg(self, data):  # d_type 1 - msg
-        self.chat_textbox.insert(END, "<%s> %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
+        self.insert_local_msg("<%s> %s\n" % (datetime.now().strftime('%H:%M:%S'), data))
         self.chat_textbox.see(END)
-        alert_audio_handling.play_sound(SoundPathEnum.MESSAGE)
+        if self.sound_activate:
+            alert_audio_handling.play_sound(SoundPathEnum.MESSAGE)
+
+    def insert_local_msg(self, msg, color="BLACK"):
+        self.chat_textbox.insert(END, "%s\n" % msg, color)
+        self.chat_textbox.see(END)
 
     def update_users_list(self, data):  # d_type 2 - users list
         self.user_list.delete(0, END)
@@ -167,18 +214,21 @@ class MainWindow:
     def incoming_poke_handler(self, data):  # d_type 3 - poke
         self.q.put(lambda: self.show_poke(data))
 
+    def admin_ban_window_handler(self):  # d_type 3 - poke
+        admin_ban_window.AdminBanWindow(self)
+
     def connection_error(self):
-        self.chat_textbox.insert(END, "\nConnection to server lost!\n", "RED")
+        self.insert_local_msg("Connection to server lost!", "RED")
         self.chat_textbox.see(END)
 
     def send_msg(self, data, d_type=SendTypeEnum.TYPE_MSG, arg=0):
         data = str(data)
         if len(data) >= 1 and d_type == SendTypeEnum.TYPE_MSG:
             try:
-                self.chat_textbox.insert(END, '<%s> [Me] %s\n' % (datetime.now().strftime('%H:%M:%S'), data))
+                self.insert_local_msg('<%s> [Me] %s' % (datetime.now().strftime('%H:%M:%S'), data))
                 self.sock_handler.send_msg(data)
             except sock_handling.ConnectionError:
-                self.chat_textbox.insert(END, "Error: Connection to server lost! The message was not delivered\n", "RED")
+                self.insert_local_msg("Error: Connection to server lost! The message was not delivered", "RED")
             else:
                 pass
             finally:
@@ -200,22 +250,25 @@ class MainWindow:
             self.msg_box_entry.focus_set()
 
         def poke():
-            self.new_window = Toplevel(self.master)
-            send_poke_window.SendPokeWindow(self.new_window, self, name)
+            send_poke_window.SendPokeWindow(self, name)
 
-        def p_chat():
-            pass
+        def kick():
+            self.msg_box_entry.insert(END, "!kick %s " % name)
+            self.msg_box_entry.focus_set()
 
         widget = event.widget
         selection = widget.curselection()
         name = widget.get(selection[0])
         print "selection:", selection, ": '%s'" % name
 
+        if "[Admin]" in name:
+            name = name[7:]
+
         menu = Menu(self.master, tearoff=0)
-        if name != self.username:
+        if name.lower() != self.username.lower():
             menu.add_command(label='Tag', command=tag)
             menu.add_command(label='Poke', command=poke)
-            menu.add_command(label='Start private chat (&Voice)', command=p_chat)
+            menu.add_command(label='kick', command=kick)
         else:
             menu.add_command(label='Coming Soon')
 
